@@ -1,1 +1,1 @@
-# Travel Journal App
+# Note Taking App with Status Tracker
