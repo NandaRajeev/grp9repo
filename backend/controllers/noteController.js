@@ -2,29 +2,88 @@ const Note = require("../models/Note");
 
 // Create a new note
 const createNote = async (req, res) => {
-  try {
-    const { title, description, status } = req.body;
+    try {
 
-    const note = await Note.create({
-      title,
-      description,
-      status,
-    });
+        const { title, description, status } = req.body;
 
-    res.status(201).json(note);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+        if (!title || !description) {
+            return res.status(400).json({
+                success: false,
+                message: "Title and description are required"
+            });
+        }
+
+        const note = await Note.create({
+            title,
+            description,
+            status
+        });
+
+        res.status(201).json(note);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
 };
-
 // Get all notes
 const getAllNotes = async (req, res) => {
   try {
-    const notes = await Note.find().sort({ createdAt: -1 });
+    const { status, search } = req.query;
+
+    let filter = {};
+
+    // Filter by status
+    if (status) {
+      filter.status = status;
+    }
+
+    // Search by title or description
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const notes = await Note.find(filter).sort({ createdAt: -1 });
 
     res.status(200).json(notes);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const getStats = async (req, res) => {
+  try {
+    const total = await Note.countDocuments();
+
+    const pending = await Note.countDocuments({
+      status: "Pending",
+    });
+
+    const inProgress = await Note.countDocuments({
+      status: "In Progress",
+    });
+
+    const completed = await Note.countDocuments({
+      status: "Completed",
+    });
+
+    res.status(200).json({
+      total,
+      pending,
+      inProgress,
+      completed,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
@@ -85,6 +144,7 @@ const deleteNote = async (req, res) => {
 module.exports = {
   createNote,
   getAllNotes,
+  getStats,
   getNoteById,
   updateNote,
   deleteNote,
