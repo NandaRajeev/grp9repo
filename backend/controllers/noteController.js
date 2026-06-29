@@ -16,7 +16,8 @@ const createNote = async (req, res) => {
         const note = await Note.create({
             title,
             description,
-            status
+            status,
+            user: req.user._id,
         });
 
         res.status(201).json(note);
@@ -32,7 +33,7 @@ const getAllNotes = async (req, res) => {
   try {
     const { status, search } = req.query;
 
-    let filter = {};
+    let filter = { user: req.user._id };
 
     // Filter by status
     if (status) {
@@ -59,17 +60,21 @@ const getAllNotes = async (req, res) => {
 
 const getStats = async (req, res) => {
   try {
-    const total = await Note.countDocuments();
+    const userId = req.user._id;
+    const total = await Note.countDocuments({ user: userId });
 
     const pending = await Note.countDocuments({
+      user: userId,
       status: "Pending",
     });
 
     const inProgress = await Note.countDocuments({
+      user: userId,
       status: "In Progress",
     });
 
     const completed = await Note.countDocuments({
+      user: userId,
       status: "Completed",
     });
 
@@ -90,7 +95,7 @@ const getStats = async (req, res) => {
 // Get a single note
 const getNoteById = async (req, res) => {
   try {
-    const note = await Note.findById(req.params.id);
+    const note = await Note.findOne({ _id: req.params.id, user: req.user._id });
 
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
@@ -105,13 +110,10 @@ const getNoteById = async (req, res) => {
 // Update a note
 const updateNote = async (req, res) => {
   try {
-    const note = await Note.findByIdAndUpdate(
-      req.params.id,
+    const note = await Note.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
       req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
+      { new: true, runValidators: true }
     );
 
     if (!note) {
@@ -127,7 +129,7 @@ const updateNote = async (req, res) => {
 // Delete a note
 const deleteNote = async (req, res) => {
   try {
-    const note = await Note.findByIdAndDelete(req.params.id);
+    const note = await Note.findOneAndDelete({ _id: req.params.id, user: req.user._id });
 
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
