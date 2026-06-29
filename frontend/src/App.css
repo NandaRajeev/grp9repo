@@ -666,3 +666,48 @@
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Clerk SignIn / SignUp wrapper ───────────────────────────── */
+/* Centers Clerk's pre-built components on the auth page */
+.auth-clerk-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  animation: slideUp 0.35s cubic-bezier(.4,0,.2,1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Clerk's card gets our surface colour via the appearance API,
+   but override any remaining white backgrounds */
+.cl-card,
+.cl-rootBox { background: transparent !important; }
+
+/* ── Clerk UserButton (avatar in navbar) ─────────────────────── */
+.clerk-avatar {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  border: 2px solid var(--accent) !important;
+  box-shadow: 0 0 10px var(--accent-glow) !important;
+  transition: box-shadow var(--transition) !important;
+}
+.clerk-avatar:hover {
+  box-shadow: 0 0 18px var(--accent-glow) !important;
+}
+
+/* ── Header right section ────────────────────────────────────── */
+.header-right {
+  display: flex; align-items: center; gap: 12px; margin-left: auto;
+}
+.user-info {
+  display: flex; align-items: center; gap: 10px;
+}
+.user-name {
+  font-size: 13px; color: var(--text-muted); white-space: nowrap;
+}
+

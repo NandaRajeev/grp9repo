@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Navbar from "../components/Navbar";
 import * as noteService from "../services/noteService";
+import { useApi } from "../services/api";
 
 const STATUSES = ["Pending", "In Progress", "Completed"];
 
@@ -266,6 +267,7 @@ function NoteModal({ mode, note, onClose, onSave }) {
 
 // ── Dashboard ─────────────────────────────────────────────────
 export default function Dashboard() {
+  const api = useApi(); // Clerk-authenticated axios instance
   const [notes,    setNotes]    = useState([]);
   const [stats,    setStats]    = useState({ total: 0, pending: 0, inProgress: 0, completed: 0 });
   const [loading,  setLoading]  = useState(true);
@@ -290,19 +292,19 @@ export default function Dashboard() {
       const params = {};
       if (statusFilter && statusFilter !== "All") params.status = statusFilter;
       if (searchQ) params.search = searchQ;
-      const { data } = await noteService.getNotes(params);
+      const { data } = await noteService.getNotes(api, params);
       setNotes(data);
     } catch (err) {
       push(err.response?.data?.message || "Failed to load notes", "error");
     }
-  }, [push]);
+  }, [api, push]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const { data } = await noteService.getStats();
+      const { data } = await noteService.getStats(api);
       setStats(data);
     } catch { /* silent */ }
-  }, []);
+  }, [api]);
 
   const refresh = useCallback(async (sf = filter, sq = search) => {
     await Promise.all([fetchNotes(sf, sq), fetchStats()]);
@@ -333,7 +335,7 @@ export default function Dashboard() {
   // ── CRUD ───────────────────────────────────────────────────
   const handleCreate = async ({ title, description, status }) => {
     try {
-      await noteService.createNote({ title, description, status });
+      await noteService.createNote(api, { title, description, status });
       setModal(null);
       await refresh();
       push("Note created! 🎉", "success");
@@ -345,7 +347,7 @@ export default function Dashboard() {
 
   const handleUpdate = async ({ title, description, status }) => {
     try {
-      await noteService.updateNote(modal.note._id, { title, description, status });
+      await noteService.updateNote(api, modal.note._id, { title, description, status });
       setModal(null);
       await refresh();
       push("Note updated! ✨", "success");
@@ -356,7 +358,7 @@ export default function Dashboard() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await noteService.updateNote(id, { status: newStatus });
+      await noteService.updateNote(api, id, { status: newStatus });
       await refresh();
       if (newStatus === "Completed") {
         setConfetti((c) => c + 1);
@@ -372,7 +374,7 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this note?")) return;
     try {
-      await noteService.deleteNote(id);
+      await noteService.deleteNote(api, id);
       await refresh();
       push("Note deleted", "info");
     } catch (err) {

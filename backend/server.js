@@ -1,10 +1,10 @@
 require("dotenv").config();
 
 const express = require("express");
-const cors = require("cors");
-const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes");
-const noteRoutes = require("./routes/noteRoutes");
+const cors    = require("cors");
+const { clerkMiddleware } = require("@clerk/express");
+const connectDB   = require("./config/db");
+const noteRoutes  = require("./routes/noteRoutes");
 
 const app = express();
 
@@ -14,17 +14,21 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/api/auth", authRoutes);
-app.use("/api/notes", noteRoutes);
 
-// Test Route
+// Clerk session middleware — must come before any protected route
+// It parses the Clerk session token from the Authorization header
+app.use(clerkMiddleware());
+
+// Routes
+app.use("/api/notes", noteRoutes);
+// /api/auth routes are no longer needed — Clerk handles auth entirely
+
+// Health check
 app.get("/", (req, res) => {
-    res.send("Note Tracker API Running...");
+  res.send("Note Tracker API Running...");
 });
 
-// Start Server
-const PORT = process.env.PORT || 5000;
-
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Server Running on Port ${PORT}`);
+  console.log(`Server Running on Port ${PORT}`);
 });

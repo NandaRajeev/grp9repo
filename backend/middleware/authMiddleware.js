@@ -1,24 +1,20 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const { getAuth } = require("@clerk/express");
 
+// Clerk session verification middleware for protected routes
 const protect = async (req, res, next) => {
-  let token;
+  try {
+    const { userId } = getAuth(req);
 
-  if (req.headers.authorization?.startsWith("Bearer ")) {
-    try {
-      token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id).select("-password");
-
-      if (!req.user)
-        return res.status(401).json({ message: "User not found" });
-
-      next();
-    } catch {
-      res.status(401).json({ message: "Not authorized, token failed" });
+    if (!userId) {
+      return res.status(401).json({ message: "Not authorized. Please sign in." });
     }
-  } else {
-    res.status(401).json({ message: "Not authorized, no token" });
+
+    // Attach Clerk user ID to request — used in all note controllers
+    req.user = { _id: userId };
+    next();
+  } catch (err) {
+    console.error("Auth error:", err.message);
+    res.status(401).json({ message: "Not authorized. Invalid session." });
   }
 };
 

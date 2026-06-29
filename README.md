@@ -1,214 +1,159 @@
-# Note Taking App with Status Tracker
+# 📝 NoteTracker
 
-A full-stack note management app built with the MERN stack. Users can register, log in, and manage their own notes with status tracking, search, and filtering — all behind JWT-based authentication.
-
----
-
-## Tech Stack
-
-**Backend**
-- Node.js + Express
-- MongoDB + Mongoose
-- JWT (jsonwebtoken) for authentication
-- bcryptjs for password hashing
-- dotenv, cors
-
-**Frontend**
-- React 19 + Vite
-- React Router DOM (client-side routing)
-- Axios (with auto auth interceptor)
-- Lucide React (icons)
+A modern full-stack note management application built using the MERN Stack. Users can securely sign in, create and organize notes, track their progress using status categories, and manage their personal notes through an intuitive dashboard.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Authentication** — Register and login with JWT. Token stored in localStorage, verified on every app load via `/api/auth/me`.
-- **Protected routes** — Dashboard is inaccessible without a valid token. Auth pages redirect away if already logged in.
-- **Per-user notes** — Every note is scoped to the logged-in user. No user can see or modify another user's notes.
-- **CRUD** — Create, read, update, and delete notes via modal form.
-- **Status tracking** — Each note has a status: Pending, In Progress, or Completed. Change it inline from the card.
-- **Search** — Debounced search across note titles and descriptions.
-- **Filter** — Filter notes by status (All / Pending / In Progress / Completed).
-- **Stats dashboard** — Animated count-up cards showing total, pending, in-progress, and completed notes with progress bars.
-- **Toasts** — Non-blocking notifications for every action (create, update, delete, status change).
-- **Confetti** — Triggers when a note is marked Completed.
-- **Loading skeletons** — Shown while notes are fetching on first load.
-- **Responsive** — Works on mobile and desktop.
+- 🔐 Authentication using Clerk
+- 📧 Email & Password Sign In
+- 🌐 Google Sign In
+- 📝 Create, Edit and Delete Notes
+- 📌 Track note status (Pending, In Progress, Completed)
+- 🔍 Search notes instantly
+- 📊 Dashboard with note statistics
+- 👤 Each user can access only their own notes
+- 📱 Responsive and modern UI
 
 ---
 
-## Project Structure
+## 🛠 Tech Stack
+
+### Frontend
+- React (Vite)
+- React Router
+- CSS
+- Clerk Authentication
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+
+### Authentication
+- Clerk
+
+---
+
+## 📂 Project Structure
 
 ```
 grp9repo/
+│
 ├── backend/
 │   ├── config/
-│   │   └── db.js
 │   ├── controllers/
-│   │   ├── authController.js
-│   │   └── noteController.js
 │   ├── middleware/
-│   │   └── authMiddleware.js
 │   ├── models/
-│   │   ├── User.js
-│   │   └── Note.js
 │   ├── routes/
-│   │   ├── authRoutes.js
-│   │   └── noteRoutes.js
 │   ├── utils/
-│   │   └── generateToken.js
-│   ├── .env              ← you create this
-│   ├── .env.example
-│   └── server.js
+│   ├── server.js
+│   └── package.json
 │
-└── my-react-app/
-    └── src/
-        ├── components/
-        │   ├── Navbar.jsx
-        │   └── ProtectedRoute.jsx
-        ├── context/
-        │   └── AuthContext.jsx
-        ├── pages/
-        │   ├── Login.jsx
-        │   ├── Register.jsx
-        │   └── Dashboard.jsx
-        ├── services/
-        │   ├── api.js
-        │   ├── authService.js
-        │   └── noteService.js
-        ├── App.jsx
-        └── main.jsx
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
 ```
 
 ---
 
-## API Endpoints
+## 🚀 Installation
 
-### Auth
-| Method | Endpoint | Description | Auth required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/register` | Register new user | No |
-| POST | `/api/auth/login` | Login, returns JWT | No |
-| GET | `/api/auth/me` | Get logged-in user | Yes |
-
-### Notes
-All note endpoints require a valid JWT in the `Authorization: Bearer <token>` header.
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/notes` | Get user's notes (supports `?status=` and `?search=`) |
-| POST | `/api/notes` | Create a note |
-| GET | `/api/notes/stats` | Get count stats for dashboard |
-| GET | `/api/notes/:id` | Get single note |
-| PUT | `/api/notes/:id` | Update a note |
-| DELETE | `/api/notes/:id` | Delete a note |
-
----
-
-## Getting Started
-
-### Prerequisites
-- Node.js v18+
-- MongoDB Atlas account (or local MongoDB)
-
-### 1. Clone the repo
+### Clone the repository
 
 ```bash
-git clone <repo-url>
+git clone <repository-url>
 cd grp9repo
 ```
 
-### 2. Set up the backend
+### Backend Setup
 
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend/` folder:
+Create a `.env` file inside the backend folder.
 
-```
+Example:
+
+```env
 PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/notetracker
-JWT_SECRET=your_super_secret_key
+MONGO_URI=your_mongodb_connection_string
+CLERK_SECRET_KEY=your_clerk_secret_key
 ```
 
-Start the server:
+Start the backend server:
 
 ```bash
-node server.js
+npm start
 ```
 
-You should see:
-```
-Server Running on Port 5000
-MongoDB Connected
-```
+---
 
-### 3. Set up the frontend
+### Frontend Setup
 
 ```bash
-cd my-react-app
+cd frontend
 npm install
-npm install react-router-dom
+```
+
+Create a `.env` file inside the frontend folder.
+
+Example:
+
+```env
+VITE_CLERK_PUBLISHABLE_KEY=your_publishable_key
+VITE_API_URL=http://localhost:5000
+```
+
+Start the frontend:
+
+```bash
 npm run dev
 ```
 
-The app runs at `http://localhost:5173`.
+---
+
+## 📖 Usage
+
+1. Register using Email or Google.
+2. Log in securely.
+3. Create new notes.
+4. Update note status.
+5. Search and filter notes.
+6. Edit or delete notes.
+7. View dashboard statistics.
 
 ---
 
-## Environment Variables
+## 🔒 Authentication
 
-| Variable | Description |
-|----------|-------------|
-| `PORT` | Port for the Express server (default 5000) |
-| `MONGO_URI` | MongoDB connection string |
-| `JWT_SECRET` | Secret key for signing JWT tokens |
+Authentication is implemented using **Clerk**.
 
----
+Users can:
 
-## Authentication Flow
+- Register using Email & Password
+- Sign in using Email/Username & Password
+- Continue with Google
+- Stay logged in securely
 
-```
-Register / Login
-      ↓
-JWT returned from server
-      ↓
-Saved to localStorage
-      ↓
-AuthContext loads user via /api/auth/me on startup
-      ↓
-Axios interceptor attaches token to every request
-      ↓
-Backend verifies JWT → attaches req.user
-      ↓
-Notes are scoped to req.user._id
-      ↓
-Dashboard renders user's own notes only
-```
+Each authenticated user can only access their own notes.
 
 ---
 
-## Notes Schema
+## 👨‍💻 Author
 
-```js
-{
-  user:        ObjectId  // reference to User
-  title:       String    // required
-  description: String    // required
-  status:      String    // "Pending" | "In Progress" | "Completed"
-  createdAt:   Date
-  updatedAt:   Date
-}
-```
+**Aibin James Burby**
+**Arunima Nithin Nair**
+**Hridya K K**
+**Nanda Rajeev**
+**Swathi M**
 
----
-
-## MongoDB Atlas Setup
-
-1. Create a free cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
-2. Create a database user with read/write access
-3. Under **Network Access**, add `0.0.0.0/0` to allow connections from anywhere
-4. Copy the connection string into your `.env` as `MONGO_URI`
+MERN Stack Capstone Project
