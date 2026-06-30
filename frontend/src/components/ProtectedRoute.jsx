@@ -1,13 +1,10 @@
-import { useAuth } from "@clerk/clerk-react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-// Uses Clerk's useAuth() instead of the old AuthContext.
-// isLoaded: false while Clerk is initialising (prevents flash of login page)
-// isSignedIn: true when there's an active Clerk session
 export default function ProtectedRoute({ children }) {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { user, loading } = useAuth();
 
-  if (!isLoaded) {
+  if (loading) {
     return (
       <div className="auth-loading">
         <div className="spinner" />
@@ -15,5 +12,5 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  return isSignedIn ? children : <Navigate to="/login" replace />;
+  return user ? children : <Navigate to="/login" replace />;
 }

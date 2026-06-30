@@ -1,8 +1,25 @@
-// noteService.js — all note API calls, now accepts an api instance
-// (returned by useApi() hook) so the Clerk token is always fresh
+import api from "./api";
 
-export const getNotes   = (api, params)    => api.get("/notes", { params });
-export const getStats   = (api)            => api.get("/notes/stats");
-export const createNote = (api, data)      => api.post("/notes", data);
-export const updateNote = (api, id, data)  => api.put(`/notes/${id}`, data);
-export const deleteNote = (api, id)        => api.delete(`/notes/${id}`);
+const authHeader = (token) => ({
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+
+export const getNotes = (token, params) =>
+  api.get("/notes", {
+    ...authHeader(token),
+    params,
+  });
+
+export const getStats = (token) =>
+  api.get("/notes/stats", authHeader(token));
+
+export const createNote = (token, data) =>
+  api.post("/notes", data, authHeader(token));
+
+export const updateNote = (token, id, data) =>
+  api.put(`/notes/${id}`, data, authHeader(token));
+
+export const deleteNote = (token, id) =>
+  api.delete(`/notes/${id}`, authHeader(token));

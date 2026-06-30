@@ -1,20 +1,27 @@
 const { getAuth } = require("@clerk/express");
 
-// Clerk session verification middleware for protected routes
 const protect = async (req, res, next) => {
   try {
-    const { userId } = getAuth(req);
+    const auth = getAuth(req);
 
-    if (!userId) {
-      return res.status(401).json({ message: "Not authorized. Please sign in." });
+    if (!auth.userId) {
+      return res.status(401).json({
+        message: "Not authorized",
+      });
     }
 
-    // Attach Clerk user ID to request — used in all note controllers
-    req.user = { _id: userId };
+    // Make the Clerk user ID available everywhere
+    req.user = {
+      clerkUserId: auth.userId,
+    };
+
     next();
   } catch (err) {
-    console.error("Auth error:", err.message);
-    res.status(401).json({ message: "Not authorized. Invalid session." });
+    console.error(err);
+
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
   }
 };
 

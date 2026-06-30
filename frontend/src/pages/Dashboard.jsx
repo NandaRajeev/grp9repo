@@ -1,7 +1,7 @@
+import { useAuth } from "@clerk/clerk-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Navbar from "../components/Navbar";
 import * as noteService from "../services/noteService";
-import { useApi } from "../services/api";
 
 const STATUSES = ["Pending", "In Progress", "Completed"];
 
@@ -267,7 +267,15 @@ function NoteModal({ mode, note, onClose, onSave }) {
 
 // ── Dashboard ─────────────────────────────────────────────────
 export default function Dashboard() {
-  const api = useApi(); // Clerk-authenticated axios instance
+  const { getToken } = useAuth();
+  const getAuthToken = async () => {
+    const token = await getToken();
+    if (!token) {
+      throw new Error("Authentication failed");
+    }
+
+    return token;
+  };
   const [notes,    setNotes]    = useState([]);
   const [stats,    setStats]    = useState({ total: 0, pending: 0, inProgress: 0, completed: 0 });
   const [loading,  setLoading]  = useState(true);
@@ -292,19 +300,21 @@ export default function Dashboard() {
       const params = {};
       if (statusFilter && statusFilter !== "All") params.status = statusFilter;
       if (searchQ) params.search = searchQ;
-      const { data } = await noteService.getNotes(api, params);
+      const token = await getAuthToken();
+      const { data } = await noteService.getNotes(token, params);
       setNotes(data);
     } catch (err) {
       push(err.response?.data?.message || "Failed to load notes", "error");
     }
-  }, [api, push]);
+  }, [push]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const { data } = await noteService.getStats(api);
+      const token = await getAuthToken();
+      const { data } = await noteService.getStats(token);
       setStats(data);
     } catch { /* silent */ }
-  }, [api]);
+  }, []);
 
   const refresh = useCallback(async (sf = filter, sq = search) => {
     await Promise.all([fetchNotes(sf, sq), fetchStats()]);
@@ -335,7 +345,13 @@ export default function Dashboard() {
   // ── CRUD ───────────────────────────────────────────────────
   const handleCreate = async ({ title, description, status }) => {
     try {
-      await noteService.createNote(api, { title, description, status });
+      const token = await getAuthToken();
+
+await noteService.createNote(token, {
+  title,
+  description,
+  status,
+});
       setModal(null);
       await refresh();
       push("Note created! 🎉", "success");
@@ -346,41 +362,61 @@ export default function Dashboard() {
   };
 
   const handleUpdate = async ({ title, description, status }) => {
-    try {
-      await noteService.updateNote(api, modal.note._id, { title, description, status });
-      setModal(null);
-      await refresh();
-      push("Note updated! ✨", "success");
-    } catch (err) {
-      push(err.response?.data?.message || "Failed to update note", "error");
-    }
-  };
+  try {
+    const token = await getAuthToken();
+
+    await noteService.updateNote(token, modal.note._id, {
+      title,
+      description,
+      status,
+    });
+
+    setModal(null);
+    await refresh();
+    push("Note updated! ✨", "success");
+  } catch (err) {
+    push(err.response?.data?.message || "Failed to update note", "error");
+  }
+};
 
   const handleStatusChange = async (id, newStatus) => {
-    try {
-      await noteService.updateNote(api, id, { status: newStatus });
-      await refresh();
-      if (newStatus === "Completed") {
-        setConfetti((c) => c + 1);
-        push("Marked as Completed! 🎊", "success");
-      } else {
-        push(`Status → ${newStatus}`, "info");
-      }
-    } catch (err) {
-      push(err.response?.data?.message || "Failed to update status", "error");
+  try {
+    const token = await getAuthToken();
+
+    await noteService.updateNote(token, id, {
+      status: newStatus,
+    });
+
+    await refresh();
+
+    if (newStatus === "Completed") {
+      setConfetti((c) => c + 1);
+      push("Marked as Completed! 🎊", "success");
+    } else {
+      push(`Status → ${newStatus}`, "info");
     }
-  };
+  } catch (err) {
+    push(
+      err.response?.data?.message || "Failed to update status",
+      "error"
+    );
+  }
+};
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this note?")) return;
-    try {
-      await noteService.deleteNote(api, id);
-      await refresh();
-      push("Note deleted", "info");
-    } catch (err) {
-      push(err.response?.data?.message || "Failed to delete note", "error");
-    }
-  };
+  if (!window.confirm("Delete this note?")) return;
+
+  try {
+    const token = await getAuthToken();
+
+    await noteService.deleteNote(token, id);
+
+    await refresh();
+    push("Note deleted", "info");
+  } catch (err) {
+    push(err.response?.data?.message || "Failed to delete note", "error");
+  }
+};
 
   const filters = [
     { label: "All",         cls: "" },
