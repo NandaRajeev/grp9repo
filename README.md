@@ -167,10 +167,10 @@ Each authenticated user can only access their own notes.
 
 ## 👨‍💻 Author
 
-**Aibin James Burby**,
-**Arunima Nithin Nair**,
-**Hridya K K**,
-**Nanda Rajeev**,
-**Swathi M**
+1. **Aibin James Burby**
+2. **Arunima Nithin Nair**
+3. **Hridya K K**
+4. **Nanda Rajeev**
+5. **Swathi M**
 
 MERN Stack Capstone Project
