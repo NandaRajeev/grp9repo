@@ -2,6 +2,12 @@
 
 A modern full-stack note management application built using the MERN Stack. Users can securely sign in, create and organize notes, track their progress using status categories, and manage their personal notes through an intuitive dashboard.
 
+## 🌐 Live Demo
+
+**Frontend:** https://project-c507532a-27c6-463e-bea.web.app
+
+**Backend API:** https://note-tracker-api-356019879858.asia-south1.run.app
+
 ---
 
 ## ✨ Features
@@ -34,6 +40,11 @@ A modern full-stack note management application built using the MERN Stack. User
 
 ### Authentication
 - Clerk
+
+### Deployment
+
+- Firebase Hosting (Frontend)
+- Google Cloud Run (Backend)
 
 ---
 
@@ -68,7 +79,7 @@ grp9repo/
 ### Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/NandaRajeev/grp9repo.git
 cd grp9repo
 ```
 
@@ -88,6 +99,7 @@ PORT=5000
 MONGO_URI=your_mongodb_connection_string
 CLERK_SECRET_KEY=your_clerk_secret_key
 ```
+> For production deployment, configure the same environment variables in Google Cloud Run.
 
 Start the backend server:
 
@@ -109,8 +121,13 @@ Create a `.env` file inside the frontend folder.
 Example:
 
 ```env
+# Local Development
 VITE_CLERK_PUBLISHABLE_KEY=your_publishable_key
 VITE_API_URL=http://localhost:5000
+
+# Production
+# Change VITE_API_URL to your deployed backend URL
+# VITE_API_URL=https://note-tracker-api-356019879858.asia-south1.run.app
 ```
 
 Start the frontend:
